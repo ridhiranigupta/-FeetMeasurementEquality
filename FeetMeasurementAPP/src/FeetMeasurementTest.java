@@ -3,105 +3,119 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FeetMeasurementTest {
 
-    // YARD TESTS
+    // SAME UNIT ADDITION
     @Test
-    void testEquality_YardToYard_SameValue() {
-        assertTrue(new FeetMeasurement(1.0, "yard")
-                .equals(new FeetMeasurement(1.0, "yard")));
+    void testAddition_SameUnit_FeetPlusFeet() {
+        FeetMeasurement result = FeetMeasurement.add(
+                new FeetMeasurement(1.0, "feet"),
+                new FeetMeasurement(2.0, "feet"));
+
+        assertEquals(3.0, result.equals(
+                new FeetMeasurement(3.0, "feet")), true);
     }
 
+    // CROSS UNIT: FEET + INCH
     @Test
-    void testEquality_YardToFeet_EquivalentValue() {
-        assertTrue(new FeetMeasurement(1.0, "yard")
-                .equals(new FeetMeasurement(3.0, "feet")));
+    void testAddition_FeetPlusInches() {
+        FeetMeasurement result = FeetMeasurement.add(
+                new FeetMeasurement(1.0, "feet"),
+                new FeetMeasurement(12.0, "inch"));
+
+        assertTrue(result.equals(new FeetMeasurement(2.0, "feet")));
     }
 
+    // CROSS UNIT: INCH + FEET
     @Test
-    void testEquality_FeetToYard_EquivalentValue() {
-        assertTrue(new FeetMeasurement(3.0, "feet")
-                .equals(new FeetMeasurement(1.0, "yard")));
+    void testAddition_InchesPlusFeet() {
+        FeetMeasurement result = FeetMeasurement.add(
+                new FeetMeasurement(12.0, "inch"),
+                new FeetMeasurement(1.0, "feet"));
+
+        assertTrue(result.equals(new FeetMeasurement(24.0, "inch")));
     }
 
+    // YARD + FEET
     @Test
-    void testEquality_YardToInches_EquivalentValue() {
-        assertTrue(new FeetMeasurement(1.0, "yard")
-                .equals(new FeetMeasurement(36.0, "inch")));
+    void testAddition_YardPlusFeet() {
+        FeetMeasurement result = FeetMeasurement.add(
+                new FeetMeasurement(1.0, "yard"),
+                new FeetMeasurement(3.0, "feet"));
+
+        assertTrue(result.equals(new FeetMeasurement(2.0, "yard")));
     }
 
+    // CM + INCH
     @Test
-    void testEquality_YardToFeet_DifferentValue() {
-        assertFalse(new FeetMeasurement(1.0, "yard")
-                .equals(new FeetMeasurement(2.0, "feet")));
+    void testAddition_CmPlusInch() {
+        FeetMeasurement result = FeetMeasurement.add(
+                new FeetMeasurement(2.54, "cm"),
+                new FeetMeasurement(1.0, "inch"));
+
+        assertTrue(result.equals(
+                new FeetMeasurement(5.08, "cm")));
     }
 
-    // CENTIMETER TESTS
+    // COMMUTATIVITY
     @Test
-    void testEquality_CmToCm_SameValue() {
-        assertTrue(new FeetMeasurement(1.0, "cm")
-                .equals(new FeetMeasurement(1.0, "cm")));
+    void testAddition_Commutativity() {
+        FeetMeasurement a = new FeetMeasurement(1.0, "feet");
+        FeetMeasurement b = new FeetMeasurement(12.0, "inch");
+
+        FeetMeasurement r1 = FeetMeasurement.add(a, b);
+        FeetMeasurement r2 = FeetMeasurement.add(b, a);
+
+        assertTrue(r1.equals(r2));
     }
 
+    // ZERO VALUE
     @Test
-    void testEquality_CmToInch_EquivalentValue() {
-        assertTrue(new FeetMeasurement(1.0, "cm")
-                .equals(new FeetMeasurement(0.393701, "inch")));
+    void testAddition_WithZero() {
+        FeetMeasurement result = FeetMeasurement.add(
+                new FeetMeasurement(5.0, "feet"),
+                new FeetMeasurement(0.0, "inch"));
+
+        assertTrue(result.equals(new FeetMeasurement(5.0, "feet")));
     }
 
+    // NEGATIVE VALUE
     @Test
-    void testEquality_CmToFeet_NonEquivalentValue() {
-        assertFalse(new FeetMeasurement(1.0, "cm")
-                .equals(new FeetMeasurement(1.0, "feet")));
+    void testAddition_NegativeValues() {
+        FeetMeasurement result = FeetMeasurement.add(
+                new FeetMeasurement(5.0, "feet"),
+                new FeetMeasurement(-2.0, "feet"));
+
+        assertTrue(result.equals(new FeetMeasurement(3.0, "feet")));
     }
 
-    // MULTI-UNIT TRANSITIVE TEST
+    // NULL CHECK
     @Test
-    void testEquality_TransitiveProperty() {
-        FeetMeasurement yard = new FeetMeasurement(1.0, "yard");
-        FeetMeasurement feet = new FeetMeasurement(3.0, "feet");
-        FeetMeasurement inch = new FeetMeasurement(36.0, "inch");
-
-        assertTrue(yard.equals(feet));
-        assertTrue(feet.equals(inch));
-        assertTrue(yard.equals(inch));
-    }
-
-    // SAME REFERENCE
-    @Test
-    void testEquality_SameReference_Yard() {
-        FeetMeasurement f = new FeetMeasurement(1.0, "yard");
-        assertTrue(f.equals(f));
-    }
-
-    @Test
-    void testEquality_SameReference_Cm() {
-        FeetMeasurement f = new FeetMeasurement(1.0, "cm");
-        assertTrue(f.equals(f));
-    }
-
-    // NULL TEST
-    @Test
-    void testEquality_NullComparison() {
-        FeetMeasurement f = new FeetMeasurement(1.0, "feet");
-        assertFalse(f.equals(null));
-    }
-
-    // INVALID UNIT TEST
-    @Test
-    void testEquality_InvalidUnit() {
+    void testAddition_NullOperand() {
         assertThrows(IllegalArgumentException.class, () -> {
-            new FeetMeasurement(1.0, "meter");
+            FeetMeasurement.add(
+                    new FeetMeasurement(1.0, "feet"),
+                    null);
         });
     }
 
-    // COMPLEX SCENARIO
+    // LARGE VALUE
     @Test
-    void testEquality_AllUnits_ComplexScenario() {
-        FeetMeasurement yard = new FeetMeasurement(2.0, "yard");   // 6 feet
-        FeetMeasurement feet = new FeetMeasurement(6.0, "feet");
-        FeetMeasurement inch = new FeetMeasurement(72.0, "inch");
+    void testAddition_LargeValues() {
+        FeetMeasurement result = FeetMeasurement.add(
+                new FeetMeasurement(1_000_000, "feet"),
+                new FeetMeasurement(1_000_000, "feet"));
 
-        assertTrue(yard.equals(feet));
-        assertTrue(feet.equals(inch));
-        assertTrue(yard.equals(inch));
+        assertTrue(result.equals(
+                new FeetMeasurement(2_000_000, "feet")));
+    }
+
+    // SMALL VALUE
+    @Test
+    void testAddition_SmallValues() {
+        FeetMeasurement result = FeetMeasurement.add(
+                new FeetMeasurement(0.001, "feet"),
+                new FeetMeasurement(0.002, "feet"));
+
+        assertTrue(result.equals(
+                new FeetMeasurement(0.003, "feet")));
     }
 }

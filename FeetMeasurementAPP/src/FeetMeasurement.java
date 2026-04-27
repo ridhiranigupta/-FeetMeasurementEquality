@@ -2,13 +2,15 @@ import java.util.Objects;
 
 public class FeetMeasurement {
 
-    // ENUM: Unit Abstraction (UC4 EXTENSION)
+    /**
+     * ENUM: UNIT SYSTEM (Immutable + Base = FEET)
+     */
     enum LengthUnit {
 
         FEET(1.0),
         INCH(1.0 / 12.0),
         YARD(3.0),
-        CM(0.0328084); // 1 cm = 0.0328084 feet
+        CM(0.0328084);
 
         private final double toFeetFactor;
 
@@ -18,6 +20,10 @@ public class FeetMeasurement {
 
         public double toFeet(double value) {
             return value * toFeetFactor;
+        }
+
+        public double fromFeet(double feetValue) {
+            return feetValue / toFeetFactor;
         }
 
         public static LengthUnit fromString(String unit) {
@@ -44,12 +50,14 @@ public class FeetMeasurement {
         }
     }
 
-    // CLASS FIELDS
     private final double value;
     private final LengthUnit unit;
 
     // CONSTRUCTOR
     public FeetMeasurement(double value, String unit) {
+        if (!Double.isFinite(value)) {
+            throw new IllegalArgumentException("Invalid numeric value");
+        }
         this.value = value;
         this.unit = LengthUnit.fromString(unit);
     }
@@ -59,7 +67,35 @@ public class FeetMeasurement {
         return unit.toFeet(value);
     }
 
-    // EQUALS METHOD (UC4 CORE LOGIC)
+    /**
+     * =========================
+     * UC6 CORE: ADDITION LOGIC
+     * =========================
+     */
+    public static FeetMeasurement add(FeetMeasurement a, FeetMeasurement b) {
+
+        if (a == null || b == null) {
+            throw new IllegalArgumentException("Operands cannot be null");
+        }
+
+        double sumInFeet = a.toFeet() + b.toFeet();
+
+        // result in unit of FIRST operand
+        double resultValue = a.unit.fromFeet(sumInFeet);
+
+        return new FeetMeasurement(resultValue, a.unit.name());
+    }
+
+    /**
+     * INSTANCE VERSION (OO STYLE)
+     */
+    public FeetMeasurement add(FeetMeasurement other) {
+        return add(this, other);
+    }
+
+    /**
+     * EQUALITY (from UC3/UC4/UC5)
+     */
     @Override
     public boolean equals(Object obj) {
 
@@ -77,32 +113,21 @@ public class FeetMeasurement {
         return Objects.hash(toFeet());
     }
 
-    // MAIN METHOD (DEMO)
+    /**
+     * MAIN DEMO
+     */
     public static void main(String[] args) {
 
         FeetMeasurement f1 = new FeetMeasurement(1.0, "yard");
         FeetMeasurement f2 = new FeetMeasurement(3.0, "feet");
 
-        System.out.println("1 Yard = 3 Feet ? " + f1.equals(f2)); // true
+        System.out.println("1 Feet + 12 Inch = " +
+                FeetMeasurement.add(f1, f2).value + " " + f1.unit);
 
-        FeetMeasurement f3 = new FeetMeasurement(1.0, "yard");
-        FeetMeasurement f4 = new FeetMeasurement(36.0, "inch");
+        FeetMeasurement y1 = new FeetMeasurement(1.0, "yard");
+        FeetMeasurement f3 = new FeetMeasurement(3.0, "feet");
 
-        System.out.println("1 Yard = 36 Inch ? " + f3.equals(f4)); // true
-
-        FeetMeasurement f5 = new FeetMeasurement(2.0, "cm");
-        FeetMeasurement f6 = new FeetMeasurement(2.0, "cm");
-
-        System.out.println("2 CM = 2 CM ? " + f5.equals(f6)); // true
-
-        FeetMeasurement f7 = new FeetMeasurement(1.0, "cm");
-        FeetMeasurement f8 = new FeetMeasurement(0.393701, "inch");
-
-        System.out.println("1 CM = 0.393701 Inch ? " + f7.equals(f8)); // true
-
-        FeetMeasurement f9 = new FeetMeasurement(2.0, "yard");
-        FeetMeasurement f10 = new FeetMeasurement(6.0, "feet");
-
-        System.out.println("2 Yard = 6 Feet ? " + f9.equals(f10)); // true
+        System.out.println("1 Yard + 3 Feet = " +
+                FeetMeasurement.add(y1, f3).value + " " + y1.unit);
     }
 }
