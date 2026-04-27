@@ -53,6 +53,7 @@ public class FeetMeasurement {
     private final double value;
     private final LengthUnit unit;
 
+    // CONSTRUCTOR
     public FeetMeasurement(double value, String unit) {
         if (!Double.isFinite(value)) {
             throw new IllegalArgumentException("Invalid numeric value");
