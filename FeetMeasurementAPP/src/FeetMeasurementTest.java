@@ -3,56 +3,70 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FeetMeasurementTest {
 
-    // SAME UNIT ADDITION
+    // FEET target
     @Test
-    void testAddition_SameUnit_FeetPlusFeet() {
+    void testAddition_ExplicitTargetUnit_Feet() {
         FeetMeasurement result = FeetMeasurement.add(
                 new FeetMeasurement(1.0, "feet"),
-                new FeetMeasurement(2.0, "feet"));
-
-        assertEquals(3.0, result.equals(
-                new FeetMeasurement(3.0, "feet")), true);
-    }
-
-    // CROSS UNIT: FEET + INCH
-    @Test
-    void testAddition_FeetPlusInches() {
-        FeetMeasurement result = FeetMeasurement.add(
-                new FeetMeasurement(1.0, "feet"),
-                new FeetMeasurement(12.0, "inch"));
+                new FeetMeasurement(12.0, "inch"),
+                FeetMeasurement.LengthUnit.FEET);
 
         assertTrue(result.equals(new FeetMeasurement(2.0, "feet")));
     }
 
-    // CROSS UNIT: INCH + FEET
+    // INCH target
     @Test
-    void testAddition_InchesPlusFeet() {
+    void testAddition_ExplicitTargetUnit_Inches() {
         FeetMeasurement result = FeetMeasurement.add(
+                new FeetMeasurement(1.0, "feet"),
                 new FeetMeasurement(12.0, "inch"),
-                new FeetMeasurement(1.0, "feet"));
+                FeetMeasurement.LengthUnit.INCH);
 
         assertTrue(result.equals(new FeetMeasurement(24.0, "inch")));
     }
 
-    // YARD + FEET
+    // YARD target
     @Test
-    void testAddition_YardPlusFeet() {
+    void testAddition_ExplicitTargetUnit_Yards() {
         FeetMeasurement result = FeetMeasurement.add(
-                new FeetMeasurement(1.0, "yard"),
-                new FeetMeasurement(3.0, "feet"));
+                new FeetMeasurement(1.0, "feet"),
+                new FeetMeasurement(12.0, "inch"),
+                FeetMeasurement.LengthUnit.YARD);
 
-        assertTrue(result.equals(new FeetMeasurement(2.0, "yard")));
+        assertTrue(result.equals(new FeetMeasurement(0.667, "yard")));
     }
 
-    // CM + INCH
+    // CM target
     @Test
-    void testAddition_CmPlusInch() {
+    void testAddition_ExplicitTargetUnit_Centimeters() {
         FeetMeasurement result = FeetMeasurement.add(
-                new FeetMeasurement(2.54, "cm"),
-                new FeetMeasurement(1.0, "inch"));
+                new FeetMeasurement(1.0, "inch"),
+                new FeetMeasurement(1.0, "inch"),
+                FeetMeasurement.LengthUnit.CM);
 
-        assertTrue(result.equals(
-                new FeetMeasurement(5.08, "cm")));
+        assertTrue(result.equals(new FeetMeasurement(5.08, "cm")));
+    }
+
+    // SAME AS FIRST OPERAND
+    @Test
+    void testAddition_TargetSameAsFirstOperand() {
+        FeetMeasurement result = FeetMeasurement.add(
+                new FeetMeasurement(2.0, "yard"),
+                new FeetMeasurement(3.0, "feet"),
+                FeetMeasurement.LengthUnit.YARD);
+
+        assertTrue(result.equals(new FeetMeasurement(3.0, "yard")));
+    }
+
+    // SAME AS SECOND OPERAND
+    @Test
+    void testAddition_TargetSameAsSecondOperand() {
+        FeetMeasurement result = FeetMeasurement.add(
+                new FeetMeasurement(2.0, "yard"),
+                new FeetMeasurement(3.0, "feet"),
+                FeetMeasurement.LengthUnit.FEET);
+
+        assertTrue(result.equals(new FeetMeasurement(9.0, "feet")));
     }
 
     // COMMUTATIVITY
@@ -61,38 +75,41 @@ class FeetMeasurementTest {
         FeetMeasurement a = new FeetMeasurement(1.0, "feet");
         FeetMeasurement b = new FeetMeasurement(12.0, "inch");
 
-        FeetMeasurement r1 = FeetMeasurement.add(a, b);
-        FeetMeasurement r2 = FeetMeasurement.add(b, a);
+        FeetMeasurement r1 = FeetMeasurement.add(a, b, FeetMeasurement.LengthUnit.YARD);
+        FeetMeasurement r2 = FeetMeasurement.add(b, a, FeetMeasurement.LengthUnit.YARD);
 
         assertTrue(r1.equals(r2));
     }
 
-    // ZERO VALUE
+    // ZERO
     @Test
     void testAddition_WithZero() {
         FeetMeasurement result = FeetMeasurement.add(
                 new FeetMeasurement(5.0, "feet"),
-                new FeetMeasurement(0.0, "inch"));
+                new FeetMeasurement(0.0, "inch"),
+                FeetMeasurement.LengthUnit.YARD);
 
-        assertTrue(result.equals(new FeetMeasurement(5.0, "feet")));
+        assertTrue(result.equals(new FeetMeasurement(1.667, "yard")));
     }
 
-    // NEGATIVE VALUE
+    // NEGATIVE
     @Test
     void testAddition_NegativeValues() {
         FeetMeasurement result = FeetMeasurement.add(
                 new FeetMeasurement(5.0, "feet"),
-                new FeetMeasurement(-2.0, "feet"));
+                new FeetMeasurement(-2.0, "feet"),
+                FeetMeasurement.LengthUnit.INCH);
 
-        assertTrue(result.equals(new FeetMeasurement(3.0, "feet")));
+        assertTrue(result.equals(new FeetMeasurement(36.0, "inch")));
     }
 
-    // NULL CHECK
+    // NULL TARGET UNIT
     @Test
-    void testAddition_NullOperand() {
+    void testAddition_NullTargetUnit() {
         assertThrows(IllegalArgumentException.class, () -> {
             FeetMeasurement.add(
                     new FeetMeasurement(1.0, "feet"),
+                    new FeetMeasurement(12.0, "inch"),
                     null);
         });
     }
@@ -101,21 +118,10 @@ class FeetMeasurementTest {
     @Test
     void testAddition_LargeValues() {
         FeetMeasurement result = FeetMeasurement.add(
-                new FeetMeasurement(1_000_000, "feet"),
-                new FeetMeasurement(1_000_000, "feet"));
+                new FeetMeasurement(1000.0, "feet"),
+                new FeetMeasurement(500.0, "feet"),
+                FeetMeasurement.LengthUnit.INCH);
 
-        assertTrue(result.equals(
-                new FeetMeasurement(2_000_000, "feet")));
-    }
-
-    // SMALL VALUE
-    @Test
-    void testAddition_SmallValues() {
-        FeetMeasurement result = FeetMeasurement.add(
-                new FeetMeasurement(0.001, "feet"),
-                new FeetMeasurement(0.002, "feet"));
-
-        assertTrue(result.equals(
-                new FeetMeasurement(0.003, "feet")));
+        assertTrue(result.equals(new FeetMeasurement(18000.0, "inch")));
     }
 }

@@ -3,7 +3,9 @@ import java.util.Objects;
 public class FeetMeasurement {
 
     /**
-     * ENUM: UNIT SYSTEM (Immutable + Base = FEET)
+     * =========================
+     * UNIT ENUM (BASE = FEET)
+     * =========================
      */
     enum LengthUnit {
 
@@ -66,33 +68,34 @@ public class FeetMeasurement {
     }
 
     /**
-     * =========================
-     * UC6 CORE: ADDITION LOGIC
-     * =========================
+     * ==========================================
+     * UC7 CORE: ADDITION WITH TARGET UNIT OUTPUT
+     * ==========================================
      */
-    public static FeetMeasurement add(FeetMeasurement a, FeetMeasurement b) {
+    public static FeetMeasurement add(FeetMeasurement a,
+                                      FeetMeasurement b,
+                                      LengthUnit targetUnit) {
 
-        if (a == null || b == null) {
-            throw new IllegalArgumentException("Operands cannot be null");
+        if (a == null || b == null || targetUnit == null) {
+            throw new IllegalArgumentException("Inputs cannot be null");
         }
 
         double sumInFeet = a.toFeet() + b.toFeet();
 
-        // result in unit of FIRST operand
-        double resultValue = a.unit.fromFeet(sumInFeet);
+        double resultValue = targetUnit.fromFeet(sumInFeet);
 
-        return new FeetMeasurement(resultValue, a.unit.name());
+        return new FeetMeasurement(resultValue, targetUnit.name());
     }
 
     /**
-     * INSTANCE VERSION (OO STYLE)
+     * INSTANCE OVERLOAD (optional API style)
      */
-    public FeetMeasurement add(FeetMeasurement other) {
-        return add(this, other);
+    public FeetMeasurement add(FeetMeasurement other, LengthUnit targetUnit) {
+        return add(this, other, targetUnit);
     }
 
     /**
-     * EQUALITY (from UC3/UC4/UC5)
+     * EQUALITY (from UC3–UC6)
      */
     @Override
     public boolean equals(Object obj) {
@@ -112,20 +115,20 @@ public class FeetMeasurement {
     }
 
     /**
-     * MAIN DEMO
+     * DEMO
      */
     public static void main(String[] args) {
 
         FeetMeasurement f1 = new FeetMeasurement(1.0, "feet");
         FeetMeasurement f2 = new FeetMeasurement(12.0, "inch");
 
-        System.out.println("1 Feet + 12 Inch = " +
-                FeetMeasurement.add(f1, f2).value + " " + f1.unit);
+        System.out.println("Feet result: " +
+                add(f1, f2, LengthUnit.FEET).value);
 
-        FeetMeasurement y1 = new FeetMeasurement(1.0, "yard");
-        FeetMeasurement f3 = new FeetMeasurement(3.0, "feet");
+        System.out.println("Inch result: " +
+                add(f1, f2, LengthUnit.INCH).value);
 
-        System.out.println("1 Yard + 3 Feet = " +
-                FeetMeasurement.add(y1, f3).value + " " + y1.unit);
+        System.out.println("Yard result: " +
+                add(f1, f2, LengthUnit.YARD).value);
     }
 }
