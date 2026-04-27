@@ -53,6 +53,7 @@ public class FeetMeasurement {
     private final double value;
     private final LengthUnit unit;
 
+    // CONSTRUCTOR
     public FeetMeasurement(double value, String unit) {
         if (!Double.isFinite(value)) {
             throw new IllegalArgumentException("Invalid numeric value");
@@ -61,6 +62,7 @@ public class FeetMeasurement {
         this.unit = LengthUnit.fromString(unit);
     }
 
+    // CONVERSION TO BASE UNIT (FEET)
     private double toFeet() {
         return unit.toFeet(value);
     }
@@ -116,8 +118,8 @@ public class FeetMeasurement {
      */
     public static void main(String[] args) {
 
-        FeetMeasurement f1 = new FeetMeasurement(1.0, "feet");
-        FeetMeasurement f2 = new FeetMeasurement(12.0, "inch");
+        FeetMeasurement f1 = new FeetMeasurement(1.0, "yard");
+        FeetMeasurement f2 = new FeetMeasurement(3.0, "feet");
 
         System.out.println("1 Feet + 12 Inch = " +
                 FeetMeasurement.add(f1, f2).value + " " + f1.unit);
