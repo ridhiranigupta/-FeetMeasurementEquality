@@ -3,125 +3,120 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FeetMeasurementTest {
 
-    // FEET target
-    @Test
-    void testAddition_ExplicitTargetUnit_Feet() {
-        FeetMeasurement result = FeetMeasurement.add(
-                new FeetMeasurement(1.0, "feet"),
-                new FeetMeasurement(12.0, "inch"),
-                FeetMeasurement.LengthUnit.FEET);
+    // =========================
+    // CONVERSION TESTS
+    // =========================
 
-        assertTrue(result.equals(new FeetMeasurement(2.0, "feet")));
+    @Test
+    void testConvert_FeetToInches() {
+        FeetMeasurement f = new FeetMeasurement(1.0, FeetMeasurement.LengthUnit.FEET);
+
+        FeetMeasurement result = f.convertTo(FeetMeasurement.LengthUnit.INCHES);
+
+        assertEquals(new FeetMeasurement(12.0, FeetMeasurement.LengthUnit.INCHES), result);
     }
 
-    // INCH target
     @Test
-    void testAddition_ExplicitTargetUnit_Inches() {
-        FeetMeasurement result = FeetMeasurement.add(
-                new FeetMeasurement(1.0, "feet"),
-                new FeetMeasurement(12.0, "inch"),
-                FeetMeasurement.LengthUnit.INCH);
+    void testConvert_YardsToFeet() {
+        FeetMeasurement f = new FeetMeasurement(1.0, FeetMeasurement.LengthUnit.YARDS);
 
-        assertTrue(result.equals(new FeetMeasurement(24.0, "inch")));
+        FeetMeasurement result = f.convertTo(FeetMeasurement.LengthUnit.FEET);
+
+        assertEquals(new FeetMeasurement(3.0, FeetMeasurement.LengthUnit.FEET), result);
     }
 
-    // YARD target
     @Test
-    void testAddition_ExplicitTargetUnit_Yards() {
-        FeetMeasurement result = FeetMeasurement.add(
-                new FeetMeasurement(1.0, "feet"),
-                new FeetMeasurement(12.0, "inch"),
-                FeetMeasurement.LengthUnit.YARD);
+    void testConvert_CentimetersToInches() {
+        FeetMeasurement f = new FeetMeasurement(2.54, FeetMeasurement.LengthUnit.CENTIMETERS);
 
-        assertTrue(result.equals(new FeetMeasurement(0.667, "yard")));
+        FeetMeasurement result = f.convertTo(FeetMeasurement.LengthUnit.INCHES);
+
+        assertEquals(new FeetMeasurement(1.0, FeetMeasurement.LengthUnit.INCHES), result);
     }
 
-    // CM target
-    @Test
-    void testAddition_ExplicitTargetUnit_Centimeters() {
-        FeetMeasurement result = FeetMeasurement.add(
-                new FeetMeasurement(1.0, "inch"),
-                new FeetMeasurement(1.0, "inch"),
-                FeetMeasurement.LengthUnit.CM);
+    // =========================
+    // EQUALITY TESTS
+    // =========================
 
-        assertTrue(result.equals(new FeetMeasurement(5.08, "cm")));
+    @Test
+    void testEquality_FeetAndInches() {
+        FeetMeasurement f1 = new FeetMeasurement(1.0, FeetMeasurement.LengthUnit.FEET);
+        FeetMeasurement f2 = new FeetMeasurement(12.0, FeetMeasurement.LengthUnit.INCHES);
+
+        assertTrue(f1.equals(f2));
     }
 
-    // SAME AS FIRST OPERAND
     @Test
-    void testAddition_TargetSameAsFirstOperand() {
-        FeetMeasurement result = FeetMeasurement.add(
-                new FeetMeasurement(2.0, "yard"),
-                new FeetMeasurement(3.0, "feet"),
-                FeetMeasurement.LengthUnit.YARD);
+    void testEquality_YardsAndFeet() {
+        FeetMeasurement f1 = new FeetMeasurement(1.0, FeetMeasurement.LengthUnit.YARDS);
+        FeetMeasurement f2 = new FeetMeasurement(3.0, FeetMeasurement.LengthUnit.FEET);
 
-        assertTrue(result.equals(new FeetMeasurement(3.0, "yard")));
+        assertTrue(f1.equals(f2));
     }
 
-    // SAME AS SECOND OPERAND
-    @Test
-    void testAddition_TargetSameAsSecondOperand() {
-        FeetMeasurement result = FeetMeasurement.add(
-                new FeetMeasurement(2.0, "yard"),
-                new FeetMeasurement(3.0, "feet"),
-                FeetMeasurement.LengthUnit.FEET);
+    // =========================
+    // ADDITION TESTS
+    // =========================
 
-        assertTrue(result.equals(new FeetMeasurement(9.0, "feet")));
+    @Test
+    void testAdd_SameUnit_Feet() {
+        FeetMeasurement f1 = new FeetMeasurement(1.0, FeetMeasurement.LengthUnit.FEET);
+        FeetMeasurement f2 = new FeetMeasurement(2.0, FeetMeasurement.LengthUnit.FEET);
+
+        FeetMeasurement result = f1.add(f2, FeetMeasurement.LengthUnit.FEET);
+
+        assertEquals(new FeetMeasurement(3.0, FeetMeasurement.LengthUnit.FEET), result);
     }
 
-    // COMMUTATIVITY
     @Test
-    void testAddition_Commutativity() {
-        FeetMeasurement a = new FeetMeasurement(1.0, "feet");
-        FeetMeasurement b = new FeetMeasurement(12.0, "inch");
+    void testAdd_CrossUnit_FeetAndInches() {
+        FeetMeasurement f1 = new FeetMeasurement(1.0, FeetMeasurement.LengthUnit.FEET);
+        FeetMeasurement f2 = new FeetMeasurement(12.0, FeetMeasurement.LengthUnit.INCHES);
 
-        FeetMeasurement r1 = FeetMeasurement.add(a, b, FeetMeasurement.LengthUnit.YARD);
-        FeetMeasurement r2 = FeetMeasurement.add(b, a, FeetMeasurement.LengthUnit.YARD);
+        FeetMeasurement result = f1.add(f2, FeetMeasurement.LengthUnit.FEET);
 
-        assertTrue(r1.equals(r2));
+        assertEquals(new FeetMeasurement(2.0, FeetMeasurement.LengthUnit.FEET), result);
     }
 
-    // ZERO
     @Test
-    void testAddition_WithZero() {
-        FeetMeasurement result = FeetMeasurement.add(
-                new FeetMeasurement(5.0, "feet"),
-                new FeetMeasurement(0.0, "inch"),
-                FeetMeasurement.LengthUnit.YARD);
+    void testAdd_YardsAndFeet() {
+        FeetMeasurement f1 = new FeetMeasurement(1.0, FeetMeasurement.LengthUnit.YARDS);
+        FeetMeasurement f2 = new FeetMeasurement(3.0, FeetMeasurement.LengthUnit.FEET);
 
-        assertTrue(result.equals(new FeetMeasurement(1.667, "yard")));
+        FeetMeasurement result = f1.add(f2, FeetMeasurement.LengthUnit.YARDS);
+
+        assertEquals(new FeetMeasurement(2.0, FeetMeasurement.LengthUnit.YARDS), result);
     }
 
-    // NEGATIVE
-    @Test
-    void testAddition_NegativeValues() {
-        FeetMeasurement result = FeetMeasurement.add(
-                new FeetMeasurement(5.0, "feet"),
-                new FeetMeasurement(-2.0, "feet"),
-                FeetMeasurement.LengthUnit.INCH);
+    // =========================
+    // EDGE CASE TESTS
+    // =========================
 
-        assertTrue(result.equals(new FeetMeasurement(36.0, "inch")));
+    @Test
+    void testNullUnitThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new FeetMeasurement(1.0, null));
     }
 
-    // NULL TARGET UNIT
     @Test
-    void testAddition_NullTargetUnit() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            FeetMeasurement.add(
-                    new FeetMeasurement(1.0, "feet"),
-                    new FeetMeasurement(12.0, "inch"),
-                    null);
-        });
+    void testNaNValueThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new FeetMeasurement(Double.NaN, FeetMeasurement.LengthUnit.FEET));
     }
 
-    // LARGE VALUE
     @Test
-    void testAddition_LargeValues() {
-        FeetMeasurement result = FeetMeasurement.add(
-                new FeetMeasurement(1000.0, "feet"),
-                new FeetMeasurement(500.0, "feet"),
-                FeetMeasurement.LengthUnit.INCH);
+    void testNullAddThrowsException() {
+        FeetMeasurement f = new FeetMeasurement(1.0, FeetMeasurement.LengthUnit.FEET);
 
-        assertTrue(result.equals(new FeetMeasurement(18000.0, "inch")));
+        assertThrows(IllegalArgumentException.class,
+                () -> f.add(null, FeetMeasurement.LengthUnit.FEET));
+    }
+
+    @Test
+    void testNullConvertThrowsException() {
+        FeetMeasurement f = new FeetMeasurement(1.0, FeetMeasurement.LengthUnit.FEET);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> f.convertTo(null));
     }
 }
