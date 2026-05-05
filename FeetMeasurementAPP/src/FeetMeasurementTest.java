@@ -1,8 +1,9 @@
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class FeetMeasurementTest {
+public class FeetMeasurementTest {
 
+    // -------- ADDITION (existing) --------
     @Test
     void testSubtract_FeetMinusFeet() {
         Quantity<LengthUnit> q1 = new Quantity<>(10, LengthUnit.FEET);
@@ -11,6 +12,7 @@ class FeetMeasurementTest {
         assertEquals(5.0, q1.subtract(q2).getValue());
     }
 
+    // -------- SUBTRACTION --------
     @Test
     void testSubtract_FeetMinusInches() {
         Quantity<LengthUnit> q1 = new Quantity<>(10, LengthUnit.FEET);
@@ -27,6 +29,7 @@ class FeetMeasurementTest {
         assertEquals(114.0, q1.subtract(q2, LengthUnit.INCHES).getValue());
     }
 
+    // -------- VOLUME TESTS (UC11) --------
     @Test
     void testSubtract_Negative() {
         Quantity<LengthUnit> q1 = new Quantity<>(5, LengthUnit.FEET);
@@ -51,6 +54,7 @@ class FeetMeasurementTest {
         assertEquals(1.0, q1.divide(q2));
     }
 
+    // -------- DIVISION --------
     @Test
     void testDivide_ByZero() {
         Quantity<LengthUnit> q1 = new Quantity<>(10, LengthUnit.FEET);
