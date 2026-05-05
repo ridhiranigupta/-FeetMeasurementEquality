@@ -17,7 +17,7 @@ public class FeetMeasurement {
 
     public static void main(String[] args) {
 
-        // Length
+        // -------- LENGTH --------
         Quantity<LengthUnit> l1 = new Quantity<>(1.0, LengthUnit.FEET);
         Quantity<LengthUnit> l2 = new Quantity<>(12.0, LengthUnit.INCHES);
 
@@ -27,12 +27,23 @@ public class FeetMeasurement {
 
         System.out.println("------");
 
-        // Weight
+        // -------- WEIGHT --------
         Quantity<WeightUnit> w1 = new Quantity<>(1.0, WeightUnit.KILOGRAM);
         Quantity<WeightUnit> w2 = new Quantity<>(1000.0, WeightUnit.GRAM);
 
         demonstrateEquality(w1, w2);
         demonstrateConversion(w1, WeightUnit.GRAM);
         demonstrateAddition(w1, w2, WeightUnit.KILOGRAM);
+
+        System.out.println("------");
+
+        // -------- VOLUME (UC11) --------
+        Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> v2 = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
+        Quantity<VolumeUnit> v3 = new Quantity<>(1.0, VolumeUnit.GALLON);
+
+        demonstrateEquality(v1, v2);
+        demonstrateConversion(v3, VolumeUnit.LITRE);
+        demonstrateAddition(v1, v2, VolumeUnit.LITRE);
     }
 }
