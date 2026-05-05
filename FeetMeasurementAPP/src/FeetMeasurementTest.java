@@ -4,55 +4,75 @@ import static org.junit.jupiter.api.Assertions.*;
 class FeetMeasurementTest {
 
     @Test
-    void test_FeetToFeet_SameValue() {
-        FeetMeasurement f1 = new FeetMeasurement(1.0, "feet");
-        FeetMeasurement f2 = new FeetMeasurement(1.0, "feet");
+    void testSubtract_FeetMinusFeet() {
+        Quantity<LengthUnit> q1 = new Quantity<>(10, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(5, LengthUnit.FEET);
 
-        assertTrue(f1.equals(f2));
+        assertEquals(5.0, q1.subtract(q2).getValue());
     }
 
     @Test
-    void test_InchToInch_SameValue() {
-        FeetMeasurement f1 = new FeetMeasurement(1.0, "inch");
-        FeetMeasurement f2 = new FeetMeasurement(1.0, "inch");
+    void testSubtract_FeetMinusInches() {
+        Quantity<LengthUnit> q1 = new Quantity<>(10, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(6, LengthUnit.INCHES);
 
-        assertTrue(f1.equals(f2));
+        assertEquals(9.5, q1.subtract(q2).getValue());
     }
 
     @Test
-    void test_InchToFeet_EquivalentValue() {
-        FeetMeasurement f1 = new FeetMeasurement(12.0, "inch");
-        FeetMeasurement f2 = new FeetMeasurement(1.0, "feet");
+    void testSubtract_InchesTarget() {
+        Quantity<LengthUnit> q1 = new Quantity<>(10, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(6, LengthUnit.INCHES);
 
-        assertTrue(f1.equals(f2));
+        assertEquals(114.0, q1.subtract(q2, LengthUnit.INCHES).getValue());
     }
 
     @Test
-    void test_FeetToFeet_DifferentValue() {
-        FeetMeasurement f1 = new FeetMeasurement(1.0, "feet");
-        FeetMeasurement f2 = new FeetMeasurement(2.0, "feet");
+    void testSubtract_Negative() {
+        Quantity<LengthUnit> q1 = new Quantity<>(5, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(10, LengthUnit.FEET);
 
-        assertFalse(f1.equals(f2));
+        assertEquals(-5.0, q1.subtract(q2).getValue());
     }
 
     @Test
-    void test_ObjectEqualsItself() {
-        FeetMeasurement f1 = new FeetMeasurement(1.0, "feet");
+    void testDivide_SameUnit() {
+        Quantity<LengthUnit> q1 = new Quantity<>(10, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(2, LengthUnit.FEET);
 
-        assertTrue(f1.equals(f1));
+        assertEquals(5.0, q1.divide(q2));
     }
 
     @Test
-    void test_NullComparison() {
-        FeetMeasurement f1 = new FeetMeasurement(1.0, "feet");
+    void testDivide_CrossUnit() {
+        Quantity<LengthUnit> q1 = new Quantity<>(24, LengthUnit.INCHES);
+        Quantity<LengthUnit> q2 = new Quantity<>(2, LengthUnit.FEET);
 
-        assertFalse(f1.equals(null));
+        assertEquals(1.0, q1.divide(q2));
     }
 
     @Test
-    void test_InvalidUnit_ShouldThrowException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new FeetMeasurement(1.0, "meter");
-        });
+    void testDivide_ByZero() {
+        Quantity<LengthUnit> q1 = new Quantity<>(10, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(0, LengthUnit.FEET);
+
+        assertThrows(ArithmeticException.class, () -> q1.divide(q2));
+    }
+
+    @Test
+    void testNullOperand() {
+        Quantity<LengthUnit> q1 = new Quantity<>(10, LengthUnit.FEET);
+
+        assertThrows(IllegalArgumentException.class, () -> q1.subtract(null));
+    }
+
+    @Test
+    void testImmutability() {
+        Quantity<LengthUnit> q1 = new Quantity<>(10, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(5, LengthUnit.FEET);
+
+        q1.subtract(q2);
+
+        assertEquals(10, q1.getValue());
     }
 }

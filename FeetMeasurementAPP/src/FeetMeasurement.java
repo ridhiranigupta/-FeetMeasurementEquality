@@ -1,85 +1,158 @@
 import java.util.Objects;
+import java.util.function.DoubleBinaryOperator;
 
+// ---------------- IMeasurable ----------------
+interface IMeasurable {
+    double toBase(double value);
+    double fromBase(double baseValue);
+}
+
+// ---------------- LengthUnit ----------------
+enum LengthUnit implements IMeasurable {
+    FEET(v -> v * 12, v -> v / 12),
+    INCHES(v -> v, v -> v);
+
+    private final DoubleBinaryOperator toBase;
+    private final DoubleBinaryOperator fromBase;
+
+    LengthUnit(DoubleBinaryOperator toBase, DoubleBinaryOperator fromBase) {
+        this.toBase = toBase;
+        this.fromBase = fromBase;
+    }
+
+    public double toBase(double value) {
+        return toBase.applyAsDouble(value, 1);
+    }
+
+    public double fromBase(double baseValue) {
+        return fromBase.applyAsDouble(baseValue, 1);
+    }
+}
+
+// ---------------- Quantity ----------------
+class Quantity<U extends IMeasurable> {
+
+    private final double value;
+    private final U unit;
+
+    public Quantity(double value, U unit) {
+        if (unit == null) throw new IllegalArgumentException("Unit cannot be null");
+        if (Double.isNaN(value) || Double.isInfinite(value))
+            throw new IllegalArgumentException("Invalid numeric value");
+
+        this.value = value;
+        this.unit = unit;
+    }
+
+    public double getValue() { return value; }
+    public U getUnit() { return unit; }
+
+    // ---------------- Arithmetic Enum ----------------
+    private enum ArithmeticOperation {
+        ADD((a, b) -> a + b),
+        SUBTRACT((a, b) -> a - b),
+        DIVIDE((a, b) -> {
+            if (b == 0) throw new ArithmeticException("Division by zero");
+            return a / b;
+        });
+
+        private final DoubleBinaryOperator op;
+
+        ArithmeticOperation(DoubleBinaryOperator op) {
+            this.op = op;
+        }
+
+        double apply(double a, double b) {
+            return op.applyAsDouble(a, b);
+        }
+    }
+
+    // ---------------- VALIDATION ----------------
+    private void validate(Quantity<U> other, U targetUnit, boolean checkTarget) {
+        if (other == null) throw new IllegalArgumentException("Other quantity is null");
+        if (!unit.getClass().equals(other.unit.getClass()))
+            throw new IllegalArgumentException("Different measurement types");
+
+        if (Double.isNaN(other.value) || Double.isInfinite(other.value))
+            throw new IllegalArgumentException("Invalid other value");
+
+        if (checkTarget && targetUnit == null)
+            throw new IllegalArgumentException("Target unit cannot be null");
+    }
+
+    // ---------------- CORE HELPER ----------------
+    private double performBaseArithmetic(Quantity<U> other, ArithmeticOperation op) {
+        double base1 = unit.toBase(value);
+        double base2 = other.unit.toBase(other.value);
+        return op.apply(base1, base2);
+    }
+
+    private double round(double v) {
+        return Math.round(v * 100.0) / 100.0;
+    }
+
+    // ---------------- ADD ----------------
+    public Quantity<U> add(Quantity<U> other) {
+        return add(other, unit);
+    }
+
+    public Quantity<U> add(Quantity<U> other, U targetUnit) {
+        validate(other, targetUnit, true);
+        double base = performBaseArithmetic(other, ArithmeticOperation.ADD);
+        return new Quantity<>(round(targetUnit.fromBase(base)), targetUnit);
+    }
+
+    // ---------------- SUBTRACT ----------------
+    public Quantity<U> subtract(Quantity<U> other) {
+        return subtract(other, unit);
+    }
+
+    public Quantity<U> subtract(Quantity<U> other, U targetUnit) {
+        validate(other, targetUnit, true);
+        double base = performBaseArithmetic(other, ArithmeticOperation.SUBTRACT);
+        return new Quantity<>(round(targetUnit.fromBase(base)), targetUnit);
+    }
+
+    // ---------------- DIVIDE ----------------
+    public double divide(Quantity<U> other) {
+        validate(other, null, false);
+        return performBaseArithmetic(other, ArithmeticOperation.DIVIDE);
+    }
+
+    @Override
+    public String toString() {
+        return "Quantity(" + value + ", " + unit + ")";
+    }
+}
+
+// ---------------- FeetMeasurement (MAIN DEMO CLASS) ----------------
 public class FeetMeasurement {
 
-    // Enum for unit handling (DRY + type safety)
-    enum LengthUnit {
-
-        FEET(1.0),
-        INCH(1.0 / 12.0);
-
-        private final double toFeetFactor;
-
-        LengthUnit(double toFeetFactor) {
-            this.toFeetFactor = toFeetFactor;
-        }
-
-        public double toFeet(double value) {
-            return value * toFeetFactor;
-        }
-
-        public static LengthUnit fromString(String unit) {
-            if (unit == null) {
-                throw new IllegalArgumentException("Unit cannot be null");
-            }
-
-            switch (unit.toLowerCase()) {
-                case "feet":
-                    return FEET;
-                case "inch":
-                case "inches":
-                    return INCH;
-                default:
-                    throw new IllegalArgumentException("Unsupported unit: " + unit);
-            }
-        }
-    }
-
-    // Quantity class logic
-    private final double value;
-    private final LengthUnit unit;
-
-    public FeetMeasurement(double value, String unit) {
-        this.value = value;
-        this.unit = LengthUnit.fromString(unit);
-    }
-
-    private double toFeet() {
-        return unit.toFeet(value);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) return true;
-
-        if (obj == null || getClass() != obj.getClass()) return false;
-
-        FeetMeasurement other = (FeetMeasurement) obj;
-
-        return Double.compare(this.toFeet(), other.toFeet()) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(toFeet());
-    }
-
-    // MAIN METHOD
     public static void main(String[] args) {
 
-        FeetMeasurement f1 = new FeetMeasurement(1.0, "feet");
-        FeetMeasurement f2 = new FeetMeasurement(12.0, "inch");
+        Quantity<LengthUnit> q1 = new Quantity<>(10, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(6, LengthUnit.INCHES);
 
-        System.out.println("1 Feet vs 12 Inch: " + f1.equals(f2)); // true
+        // ADD
+        System.out.println("ADD: " + q1.add(q2));
 
-        FeetMeasurement f3 = new FeetMeasurement(1.0, "inch");
-        FeetMeasurement f4 = new FeetMeasurement(1.0, "inch");
+        // SUBTRACT
+        System.out.println("SUBTRACT: " + q1.subtract(q2));
 
-        System.out.println("1 Inch vs 1 Inch: " + f3.equals(f4)); // true
+        // SUBTRACT explicit
+        System.out.println("SUBTRACT (INCHES): " + q1.subtract(q2, LengthUnit.INCHES));
 
-        FeetMeasurement f5 = new FeetMeasurement(2.0, "feet");
+        // DIVIDE
+        System.out.println("DIVIDE: " + q1.divide(new Quantity<>(2, LengthUnit.FEET)));
 
-        System.out.println("1 Feet vs 2 Feet: " + f1.equals(f5)); // false
+        // NEGATIVE
+        System.out.println("NEGATIVE: " +
+                new Quantity<>(5, LengthUnit.FEET)
+                        .subtract(new Quantity<>(10, LengthUnit.FEET)));
+
+        // ZERO
+        System.out.println("ZERO: " +
+                new Quantity<>(10, LengthUnit.FEET)
+                        .subtract(new Quantity<>(120, LengthUnit.INCHES)));
     }
 }
