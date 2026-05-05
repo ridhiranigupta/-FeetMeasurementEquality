@@ -1,78 +1,39 @@
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class FeetMeasurementTest {
-
-    /* ===================== LENGTH TESTS ===================== */
+public class QuantityTest {
 
     @Test
-    public void testFeetToInchesConversion() {
-        FeetMeasurement.QuantityLength length =
-                new FeetMeasurement.QuantityLength(1.0, FeetMeasurement.LengthUnit.FEET);
+    void testLengthEquality() {
+        Quantity<LengthUnit> q1 = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(12.0, LengthUnit.INCHES);
 
-        FeetMeasurement.QuantityLength result = length.convertTo(FeetMeasurement.LengthUnit.INCHES);
-
-        assertEquals(12.0, result.convertTo(FeetMeasurement.LengthUnit.INCHES).getBaseValue() * 12, 0.0001);
+        assertTrue(q1.equals(q2));
     }
 
     @Test
-    public void testAddition_FeetAndInches() {
-        FeetMeasurement.QuantityLength l1 =
-                new FeetMeasurement.QuantityLength(1.0, FeetMeasurement.LengthUnit.FEET);
-        FeetMeasurement.QuantityLength l2 =
-                new FeetMeasurement.QuantityLength(12.0, FeetMeasurement.LengthUnit.INCHES);
+    void testWeightConversion() {
+        Quantity<WeightUnit> q = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> result = q.convertTo(WeightUnit.GRAM);
 
-        FeetMeasurement.QuantityLength result = l1.add(l2);
-
-        assertTrue(result.equals(new FeetMeasurement.QuantityLength(2.0, FeetMeasurement.LengthUnit.FEET)));
+        assertEquals(1000.0, result.getValue());
     }
 
     @Test
-    public void testEquality_Length() {
-        FeetMeasurement.QuantityLength l1 =
-                new FeetMeasurement.QuantityLength(1.0, FeetMeasurement.LengthUnit.FEET);
-        FeetMeasurement.QuantityLength l2 =
-                new FeetMeasurement.QuantityLength(12.0, FeetMeasurement.LengthUnit.INCHES);
+    void testAddition() {
+        Quantity<LengthUnit> q1 = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(12.0, LengthUnit.INCHES);
 
-        assertTrue(l1.equals(l2));
-    }
+        Quantity<LengthUnit> result = q1.add(q2, LengthUnit.FEET);
 
-    /* ===================== WEIGHT TESTS ===================== */
-
-    @Test
-    public void testEquality_kgAndGram() {
-        FeetMeasurement.QuantityWeight w1 =
-                new FeetMeasurement.QuantityWeight(1.0, FeetMeasurement.WeightUnit.KILOGRAM);
-        FeetMeasurement.QuantityWeight w2 =
-                new FeetMeasurement.QuantityWeight(1000.0, FeetMeasurement.WeightUnit.GRAM);
-
-        assertTrue(w1.equals(w2));
+        assertEquals(2.0, result.getValue());
     }
 
     @Test
-    public void testConversion_PoundToKg() {
-        FeetMeasurement.QuantityWeight w =
-                new FeetMeasurement.QuantityWeight(2.20462, FeetMeasurement.WeightUnit.POUND);
+    void testCrossCategoryComparison() {
+        Quantity<LengthUnit> length = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<WeightUnit> weight = new Quantity<>(1.0, WeightUnit.KILOGRAM);
 
-        FeetMeasurement.QuantityWeight result = w.convertTo(FeetMeasurement.WeightUnit.KILOGRAM);
-
-        assertEquals(1.0, result.convertTo(FeetMeasurement.WeightUnit.KILOGRAM).getBaseValue(), 0.01);
-    }
-
-    @Test
-    public void testAddition_Weight() {
-        FeetMeasurement.QuantityWeight w1 =
-                new FeetMeasurement.QuantityWeight(1.0, FeetMeasurement.WeightUnit.KILOGRAM);
-        FeetMeasurement.QuantityWeight w2 =
-                new FeetMeasurement.QuantityWeight(1000.0, FeetMeasurement.WeightUnit.GRAM);
-
-        FeetMeasurement.QuantityWeight result = w1.add(w2);
-
-        assertTrue(result.equals(new FeetMeasurement.QuantityWeight(2.0, FeetMeasurement.WeightUnit.KILOGRAM)));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidValue() {
-        new FeetMeasurement.QuantityWeight(Double.NaN, FeetMeasurement.WeightUnit.KILOGRAM);
+        assertFalse(length.equals(weight));
     }
 }

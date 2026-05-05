@@ -1,163 +1,38 @@
 public class FeetMeasurement {
 
-    // =========================
-    // WEIGHT UNIT ENUM (UC9)
-    // =========================
-    public enum WeightUnit {
-
-        KILOGRAM(1.0),
-        GRAM(0.001),
-        POUND(0.453592);
-
-        private final double toKgFactor;
-
-        WeightUnit(double toKgFactor) {
-            this.toKgFactor = toKgFactor;
-        }
-
-        // Convert this unit → KG (base unit)
-        public double convertToBaseUnit(double value) {
-            return value * toKgFactor;
-        }
-
-        // Convert KG → this unit
-        public double convertFromBaseUnit(double baseValue) {
-            return baseValue / toKgFactor;
-        }
+    public static <U extends IMeasurable> void demonstrateEquality(
+            Quantity<U> q1, Quantity<U> q2) {
+        System.out.println(q1 + " == " + q2 + " ? " + q1.equals(q2));
     }
 
-    // =========================
-    // FIELDS
-    // =========================
-    private final double value;
-    private final WeightUnit unit;
-
-    public FeetMeasurement(double value, WeightUnit unit) {
-
-        if (!Double.isFinite(value)) {
-            throw new IllegalArgumentException("Invalid value");
-        }
-        if (unit == null) {
-            throw new IllegalArgumentException("Unit cannot be null");
-        }
-
-        this.value = value;
-        this.unit = unit;
+    public static <U extends IMeasurable> void demonstrateConversion(
+            Quantity<U> q, U targetUnit) {
+        System.out.println(q + " -> " + q.convertTo(targetUnit));
     }
 
-    // =========================
-    // GETTERS
-    // =========================
-    public double getValue() {
-        return value;
+    public static <U extends IMeasurable> void demonstrateAddition(
+            Quantity<U> q1, Quantity<U> q2, U targetUnit) {
+        System.out.println(q1 + " + " + q2 + " = " + q1.add(q2, targetUnit));
     }
 
-    public WeightUnit getUnit() {
-        return unit;
-    }
-
-    // =========================
-    // BASE CONVERSION (KG)
-    // =========================
-    private double toBaseUnit() {
-        return unit.convertToBaseUnit(value);
-    }
-
-    // =========================
-    // UC9: CONVERT
-    // =========================
-    public FeetMeasurement convertTo(WeightUnit targetUnit) {
-
-        if (targetUnit == null) {
-            throw new IllegalArgumentException("Target unit cannot be null");
-        }
-
-        double base = toBaseUnit();
-        double converted = targetUnit.convertFromBaseUnit(base);
-
-        return new FeetMeasurement(converted, targetUnit);
-    }
-
-    // =========================
-    // UC9: ADD (DEFAULT UNIT = FIRST OPERAND)
-    // =========================
-    public FeetMeasurement add(FeetMeasurement other) {
-
-        if (other == null) {
-            throw new IllegalArgumentException("Null not allowed");
-        }
-
-        double sumKg = this.toBaseUnit() + other.toBaseUnit();
-        double result = this.unit.convertFromBaseUnit(sumKg);
-
-        return new FeetMeasurement(result, this.unit);
-    }
-
-    // =========================
-    // UC9: ADD (EXPLICIT TARGET UNIT)
-    // =========================
-    public FeetMeasurement add(FeetMeasurement other, WeightUnit targetUnit) {
-
-        if (other == null || targetUnit == null) {
-            throw new IllegalArgumentException("Null not allowed");
-        }
-
-        double sumKg = this.toBaseUnit() + other.toBaseUnit();
-        double result = targetUnit.convertFromBaseUnit(sumKg);
-
-        return new FeetMeasurement(result, targetUnit);
-    }
-
-    // =========================
-    // EQUALITY (UC9 CROSS UNIT)
-    // =========================
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-
-        FeetMeasurement other = (FeetMeasurement) obj;
-
-        return Double.compare(this.toBaseUnit(), other.toBaseUnit()) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-        return Double.hashCode(toBaseUnit());
-    }
-
-    @Override
-    public String toString() {
-        return "FeetMeasurement(" + value + ", " + unit + ")";
-    }
-
-    // =========================
-    // MAIN METHOD (DEMO)
-    // =========================
     public static void main(String[] args) {
 
-        FeetMeasurement kg =
-                new FeetMeasurement(1.0, WeightUnit.KILOGRAM);
+        // Length
+        Quantity<LengthUnit> l1 = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> l2 = new Quantity<>(12.0, LengthUnit.INCHES);
 
-        FeetMeasurement gram =
-                new FeetMeasurement(1000.0, WeightUnit.GRAM);
+        demonstrateEquality(l1, l2);
+        demonstrateConversion(l1, LengthUnit.INCHES);
+        demonstrateAddition(l1, l2, LengthUnit.FEET);
 
-        FeetMeasurement pound =
-                new FeetMeasurement(2.20462, WeightUnit.POUND);
+        System.out.println("------");
 
-        System.out.println("KG == GRAM: " + kg.equals(gram));
+        // Weight
+        Quantity<WeightUnit> w1 = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> w2 = new Quantity<>(1000.0, WeightUnit.GRAM);
 
-        System.out.println("Convert KG → GRAM: " +
-                kg.convertTo(WeightUnit.GRAM));
-
-        System.out.println("Add KG + GRAM (KG): " +
-                kg.add(gram));
-
-        System.out.println("Add KG + GRAM (GRAM): " +
-                kg.add(gram, WeightUnit.GRAM));
-
-        System.out.println("Add KG + POUND (KG): " +
-                kg.add(pound, WeightUnit.KILOGRAM));
+        demonstrateEquality(w1, w2);
+        demonstrateConversion(w1, WeightUnit.GRAM);
+        demonstrateAddition(w1, w2, WeightUnit.KILOGRAM);
     }
 }
