@@ -1,85 +1,49 @@
-import java.util.Objects;
-
 public class FeetMeasurement {
 
-    // Enum for unit handling (DRY + type safety)
-    enum LengthUnit {
-
-        FEET(1.0),
-        INCH(1.0 / 12.0);
-
-        private final double toFeetFactor;
-
-        LengthUnit(double toFeetFactor) {
-            this.toFeetFactor = toFeetFactor;
-        }
-
-        public double toFeet(double value) {
-            return value * toFeetFactor;
-        }
-
-        public static LengthUnit fromString(String unit) {
-            if (unit == null) {
-                throw new IllegalArgumentException("Unit cannot be null");
-            }
-
-            switch (unit.toLowerCase()) {
-                case "feet":
-                    return FEET;
-                case "inch":
-                case "inches":
-                    return INCH;
-                default:
-                    throw new IllegalArgumentException("Unsupported unit: " + unit);
-            }
-        }
+    public static <U extends IMeasurable> void demonstrateEquality(
+            Quantity<U> q1, Quantity<U> q2) {
+        System.out.println(q1 + " == " + q2 + " ? " + q1.equals(q2));
     }
 
-    // Quantity class logic
-    private final double value;
-    private final LengthUnit unit;
-
-    public FeetMeasurement(double value, String unit) {
-        this.value = value;
-        this.unit = LengthUnit.fromString(unit);
+    public static <U extends IMeasurable> void demonstrateConversion(
+            Quantity<U> q, U targetUnit) {
+        System.out.println(q + " -> " + q.convertTo(targetUnit));
     }
 
-    private double toFeet() {
-        return unit.toFeet(value);
+    public static <U extends IMeasurable> void demonstrateAddition(
+            Quantity<U> q1, Quantity<U> q2, U targetUnit) {
+        System.out.println(q1 + " + " + q2 + " = " + q1.add(q2, targetUnit));
     }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) return true;
-
-        if (obj == null || getClass() != obj.getClass()) return false;
-
-        FeetMeasurement other = (FeetMeasurement) obj;
-
-        return Double.compare(this.toFeet(), other.toFeet()) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(toFeet());
-    }
-
-    // MAIN METHOD
     public static void main(String[] args) {
 
-        FeetMeasurement f1 = new FeetMeasurement(1.0, "feet");
-        FeetMeasurement f2 = new FeetMeasurement(12.0, "inch");
+        // -------- LENGTH --------
+        Quantity<LengthUnit> l1 = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> l2 = new Quantity<>(12.0, LengthUnit.INCHES);
 
-        System.out.println("1 Feet vs 12 Inch: " + f1.equals(f2)); // true
+        demonstrateEquality(l1, l2);
+        demonstrateConversion(l1, LengthUnit.INCHES);
+        demonstrateAddition(l1, l2, LengthUnit.FEET);
 
-        FeetMeasurement f3 = new FeetMeasurement(1.0, "inch");
-        FeetMeasurement f4 = new FeetMeasurement(1.0, "inch");
+        System.out.println("------");
 
-        System.out.println("1 Inch vs 1 Inch: " + f3.equals(f4)); // true
+        // -------- WEIGHT --------
+        Quantity<WeightUnit> w1 = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> w2 = new Quantity<>(1000.0, WeightUnit.GRAM);
 
-        FeetMeasurement f5 = new FeetMeasurement(2.0, "feet");
+        demonstrateEquality(w1, w2);
+        demonstrateConversion(w1, WeightUnit.GRAM);
+        demonstrateAddition(w1, w2, WeightUnit.KILOGRAM);
 
-        System.out.println("1 Feet vs 2 Feet: " + f1.equals(f5)); // false
+        System.out.println("------");
+
+        // -------- VOLUME (UC11) --------
+        Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> v2 = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
+        Quantity<VolumeUnit> v3 = new Quantity<>(1.0, VolumeUnit.GALLON);
+
+        demonstrateEquality(v1, v2);
+        demonstrateConversion(v3, VolumeUnit.LITRE);
+        demonstrateAddition(v1, v2, VolumeUnit.LITRE);
     }
 }

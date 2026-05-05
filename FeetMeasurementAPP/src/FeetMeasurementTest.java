@@ -1,58 +1,111 @@
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class FeetMeasurementTest {
+public class FeetMeasurementTest {
 
+    // -------- LENGTH TESTS --------
     @Test
-    void test_FeetToFeet_SameValue() {
-        FeetMeasurement f1 = new FeetMeasurement(1.0, "feet");
-        FeetMeasurement f2 = new FeetMeasurement(1.0, "feet");
+    void testLengthEquality() {
+        Quantity<LengthUnit> q1 = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(12.0, LengthUnit.INCHES);
 
-        assertTrue(f1.equals(f2));
+        assertTrue(q1.equals(q2));
     }
 
     @Test
-    void test_InchToInch_SameValue() {
-        FeetMeasurement f1 = new FeetMeasurement(1.0, "inch");
-        FeetMeasurement f2 = new FeetMeasurement(1.0, "inch");
+    void testLengthConversion() {
+        Quantity<LengthUnit> q = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> result = q.convertTo(LengthUnit.INCHES);
 
-        assertTrue(f1.equals(f2));
+        assertEquals(12.0, result.getValue());
     }
 
     @Test
-    void test_InchToFeet_EquivalentValue() {
-        FeetMeasurement f1 = new FeetMeasurement(12.0, "inch");
-        FeetMeasurement f2 = new FeetMeasurement(1.0, "feet");
+    void testLengthAddition() {
+        Quantity<LengthUnit> q1 = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(12.0, LengthUnit.INCHES);
 
-        assertTrue(f1.equals(f2));
+        Quantity<LengthUnit> result = q1.add(q2, LengthUnit.FEET);
+
+        assertEquals(2.0, result.getValue());
+    }
+
+    // -------- WEIGHT TESTS --------
+    @Test
+    void testWeightEquality() {
+        Quantity<WeightUnit> q1 = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> q2 = new Quantity<>(1000.0, WeightUnit.GRAM);
+
+        assertTrue(q1.equals(q2));
     }
 
     @Test
-    void test_FeetToFeet_DifferentValue() {
-        FeetMeasurement f1 = new FeetMeasurement(1.0, "feet");
-        FeetMeasurement f2 = new FeetMeasurement(2.0, "feet");
+    void testWeightConversion() {
+        Quantity<WeightUnit> q = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> result = q.convertTo(WeightUnit.GRAM);
 
-        assertFalse(f1.equals(f2));
+        assertEquals(1000.0, result.getValue());
     }
 
     @Test
-    void test_ObjectEqualsItself() {
-        FeetMeasurement f1 = new FeetMeasurement(1.0, "feet");
+    void testWeightAddition() {
+        Quantity<WeightUnit> q1 = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> q2 = new Quantity<>(1000.0, WeightUnit.GRAM);
 
-        assertTrue(f1.equals(f1));
+        Quantity<WeightUnit> result = q1.add(q2, WeightUnit.KILOGRAM);
+
+        assertEquals(2.0, result.getValue());
+    }
+
+    // -------- VOLUME TESTS (UC11) --------
+    @Test
+    void testVolumeEquality() {
+        Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> v2 = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
+
+        assertTrue(v1.equals(v2));
     }
 
     @Test
-    void test_NullComparison() {
-        FeetMeasurement f1 = new FeetMeasurement(1.0, "feet");
+    void testVolumeConversion() {
+        Quantity<VolumeUnit> v = new Quantity<>(1.0, VolumeUnit.GALLON);
+        Quantity<VolumeUnit> result = v.convertTo(VolumeUnit.LITRE);
 
-        assertFalse(f1.equals(null));
+        assertEquals(3.79, result.getValue(), 0.01);
     }
 
     @Test
-    void test_InvalidUnit_ShouldThrowException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new FeetMeasurement(1.0, "meter");
-        });
+    void testVolumeAddition() {
+        Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> v2 = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
+
+        Quantity<VolumeUnit> result = v1.add(v2, VolumeUnit.LITRE);
+
+        assertEquals(2.0, result.getValue());
+    }
+
+    // -------- CROSS CATEGORY TEST --------
+    @Test
+    void testCrossCategoryComparison() {
+        Quantity<LengthUnit> length = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<WeightUnit> weight = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+        Quantity<VolumeUnit> volume = new Quantity<>(1.0, VolumeUnit.LITRE);
+
+        assertFalse(length.equals(weight));
+        assertFalse(length.equals(volume));
+        assertFalse(weight.equals(volume));
+    }
+
+    // -------- VALIDATION TESTS --------
+    @Test
+    void testNullUnit() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Quantity<>(1.0, null));
+    }
+
+    @Test
+    void testInvalidValue() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Quantity<>(Double.NaN, LengthUnit.FEET));
     }
 }
