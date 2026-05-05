@@ -1,49 +1,42 @@
-public class FeetMeasurement {
-
-    public static <U extends IMeasurable> void demonstrateEquality(
-            Quantity<U> q1, Quantity<U> q2) {
-        System.out.println(q1 + " == " + q2 + " ? " + q1.equals(q2));
-    }
-
-    public static <U extends IMeasurable> void demonstrateConversion(
-            Quantity<U> q, U targetUnit) {
-        System.out.println(q + " -> " + q.convertTo(targetUnit));
-    }
-
-    public static <U extends IMeasurable> void demonstrateAddition(
-            Quantity<U> q1, Quantity<U> q2, U targetUnit) {
-        System.out.println(q1 + " + " + q2 + " = " + q1.add(q2, targetUnit));
-    }
+public class QuantityMeasurementApp {
 
     public static void main(String[] args) {
 
-        // -------- LENGTH --------
-        Quantity<LengthUnit> l1 = new Quantity<>(1.0, LengthUnit.FEET);
-        Quantity<LengthUnit> l2 = new Quantity<>(12.0, LengthUnit.INCHES);
+        // -------- LENGTH EXAMPLES --------
+        Quantity<LengthUnit> length1 = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> length2 = new Quantity<>(6.0, LengthUnit.INCH);
 
-        demonstrateEquality(l1, l2);
-        demonstrateConversion(l1, LengthUnit.INCHES);
-        demonstrateAddition(l1, l2, LengthUnit.FEET);
+        // Subtraction
+        Quantity<LengthUnit> sub1 = length1.subtract(length2);
+        System.out.println("10 ft - 6 in = " + sub1);
 
-        System.out.println("------");
+        Quantity<LengthUnit> sub2 = length1.subtract(length2, LengthUnit.INCH);
+        System.out.println("10 ft - 6 in (inches) = " + sub2);
 
-        // -------- WEIGHT --------
-        Quantity<WeightUnit> w1 = new Quantity<>(1.0, WeightUnit.KILOGRAM);
-        Quantity<WeightUnit> w2 = new Quantity<>(1000.0, WeightUnit.GRAM);
+        // Division
+        double div1 = length1.divide(new Quantity<>(2.0, LengthUnit.FEET));
+        System.out.println("10 ft / 2 ft = " + div1);
 
-        demonstrateEquality(w1, w2);
-        demonstrateConversion(w1, WeightUnit.GRAM);
-        demonstrateAddition(w1, w2, WeightUnit.KILOGRAM);
+        double div2 = new Quantity<>(24.0, LengthUnit.INCH)
+                .divide(new Quantity<>(2.0, LengthUnit.FEET));
+        System.out.println("24 in / 2 ft = " + div2);
 
-        System.out.println("------");
 
-        // -------- VOLUME (UC11) --------
-        Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.LITRE);
-        Quantity<VolumeUnit> v2 = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
-        Quantity<VolumeUnit> v3 = new Quantity<>(1.0, VolumeUnit.GALLON);
+        // -------- WEIGHT EXAMPLES --------
+        Quantity<WeightUnit> w1 = new Quantity<>(10.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> w2 = new Quantity<>(5000.0, WeightUnit.GRAM);
 
-        demonstrateEquality(v1, v2);
-        demonstrateConversion(v3, VolumeUnit.LITRE);
-        demonstrateAddition(v1, v2, VolumeUnit.LITRE);
+        System.out.println("10 kg - 5000 g = " + w1.subtract(w2));
+        System.out.println("10 kg / 5 kg = " +
+                w1.divide(new Quantity<>(5.0, WeightUnit.KILOGRAM)));
+
+
+        // -------- VOLUME EXAMPLES --------
+        Quantity<VolumeUnit> v1 = new Quantity<>(5.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> v2 = new Quantity<>(500.0, VolumeUnit.MILLILITRE);
+
+        System.out.println("5 L - 500 mL = " + v1.subtract(v2));
+        System.out.println("5 L / 10 L = " +
+                v1.divide(new Quantity<>(10.0, VolumeUnit.LITRE)));
     }
 }
