@@ -1,85 +1,42 @@
-import java.util.Objects;
+public class QuantityMeasurementApp {
 
-public class FeetMeasurement {
-
-    // Enum for unit handling (DRY + type safety)
-    enum LengthUnit {
-
-        FEET(1.0),
-        INCH(1.0 / 12.0);
-
-        private final double toFeetFactor;
-
-        LengthUnit(double toFeetFactor) {
-            this.toFeetFactor = toFeetFactor;
-        }
-
-        public double toFeet(double value) {
-            return value * toFeetFactor;
-        }
-
-        public static LengthUnit fromString(String unit) {
-            if (unit == null) {
-                throw new IllegalArgumentException("Unit cannot be null");
-            }
-
-            switch (unit.toLowerCase()) {
-                case "feet":
-                    return FEET;
-                case "inch":
-                case "inches":
-                    return INCH;
-                default:
-                    throw new IllegalArgumentException("Unsupported unit: " + unit);
-            }
-        }
-    }
-
-    // Quantity class logic
-    private final double value;
-    private final LengthUnit unit;
-
-    public FeetMeasurement(double value, String unit) {
-        this.value = value;
-        this.unit = LengthUnit.fromString(unit);
-    }
-
-    private double toFeet() {
-        return unit.toFeet(value);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) return true;
-
-        if (obj == null || getClass() != obj.getClass()) return false;
-
-        FeetMeasurement other = (FeetMeasurement) obj;
-
-        return Double.compare(this.toFeet(), other.toFeet()) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(toFeet());
-    }
-
-    // MAIN METHOD
     public static void main(String[] args) {
 
-        FeetMeasurement f1 = new FeetMeasurement(1.0, "feet");
-        FeetMeasurement f2 = new FeetMeasurement(12.0, "inch");
+        // -------- LENGTH EXAMPLES --------
+        Quantity<LengthUnit> length1 = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> length2 = new Quantity<>(6.0, LengthUnit.INCH);
 
-        System.out.println("1 Feet vs 12 Inch: " + f1.equals(f2)); // true
+        // Subtraction
+        Quantity<LengthUnit> sub1 = length1.subtract(length2);
+        System.out.println("10 ft - 6 in = " + sub1);
 
-        FeetMeasurement f3 = new FeetMeasurement(1.0, "inch");
-        FeetMeasurement f4 = new FeetMeasurement(1.0, "inch");
+        Quantity<LengthUnit> sub2 = length1.subtract(length2, LengthUnit.INCH);
+        System.out.println("10 ft - 6 in (inches) = " + sub2);
 
-        System.out.println("1 Inch vs 1 Inch: " + f3.equals(f4)); // true
+        // Division
+        double div1 = length1.divide(new Quantity<>(2.0, LengthUnit.FEET));
+        System.out.println("10 ft / 2 ft = " + div1);
 
-        FeetMeasurement f5 = new FeetMeasurement(2.0, "feet");
+        double div2 = new Quantity<>(24.0, LengthUnit.INCH)
+                .divide(new Quantity<>(2.0, LengthUnit.FEET));
+        System.out.println("24 in / 2 ft = " + div2);
 
-        System.out.println("1 Feet vs 2 Feet: " + f1.equals(f5)); // false
+
+        // -------- WEIGHT EXAMPLES --------
+        Quantity<WeightUnit> w1 = new Quantity<>(10.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> w2 = new Quantity<>(5000.0, WeightUnit.GRAM);
+
+        System.out.println("10 kg - 5000 g = " + w1.subtract(w2));
+        System.out.println("10 kg / 5 kg = " +
+                w1.divide(new Quantity<>(5.0, WeightUnit.KILOGRAM)));
+
+
+        // -------- VOLUME EXAMPLES --------
+        Quantity<VolumeUnit> v1 = new Quantity<>(5.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> v2 = new Quantity<>(500.0, VolumeUnit.MILLILITRE);
+
+        System.out.println("5 L - 500 mL = " + v1.subtract(v2));
+        System.out.println("5 L / 10 L = " +
+                v1.divide(new Quantity<>(10.0, VolumeUnit.LITRE)));
     }
 }
