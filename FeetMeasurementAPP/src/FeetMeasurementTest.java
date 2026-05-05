@@ -29,6 +29,7 @@ public class FeetMeasurementTest {
         assertEquals(9.5, q1.subtract(q2).getValue());
     }
 
+    // -------- VOLUME TESTS (UC11) --------
     @Test
     void testSubtraction_ExplicitUnit() {
         Quantity<LengthUnit> q1 = new Quantity<>(10.0, LengthUnit.FEET);
